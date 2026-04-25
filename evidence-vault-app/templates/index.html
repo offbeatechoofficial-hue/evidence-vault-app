@@ -1,72 +1,247 @@
-<!-- templates/index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EvidenceVault AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Evidence Vault - 3D Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #030712; /* Deep space dark */
+            color: #e5e7eb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* The 3D Canvas goes behind everything */
+        #bg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* Glassmorphism for UI elements */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 3D CSS Card Tilt Effects */
+        .perspective-grid {
+            perspective: 1000px;
+        }
+
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .tilt-card:hover {
+            transform: rotateX(5deg) rotateY(-5deg) translateZ(10px);
+            border-color: rgba(0, 255, 255, 0.5);
+            box-shadow: -10px 10px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .card-content {
+            transform: translateZ(30px); /* Pushes text out in 3D space */
+        }
+    </style>
 </head>
+<body class="flex h-screen w-screen selection:bg-cyan-500 selection:text-white">
 
-<body>
+    <canvas id="bg-canvas"></canvas>
 
-    <div class="sidebar">
-        <h2>🛡 EvidenceVault</h2>
+    <aside class="w-64 glass-panel border-r border-cyan-900/50 flex flex-col z-10 hidden md:flex">
+        <div class="h-20 flex items-center px-6 border-b border-cyan-900/50">
+            <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 tracking-wider drop-shadow-[0_0_8px_rgba(0,255,255,0.5)]">
+                <i class="fas fa-shield-alt mr-2 text-cyan-400"></i>E-VAULT
+            </h1>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-3">
+            <a href="/" class="flex items-center px-4 py-3 bg-cyan-900/40 text-cyan-300 rounded-xl border border-cyan-500/30 shadow-[0_0_10px_rgba(0,255,255,0.1)] transition-all">
+                <i class="fas fa-crosshairs mr-3"></i> 3D Terminal
+            </a>
+            <a href="/vault" class="flex items-center px-4 py-3 text-gray-400 hover:text-cyan-300 hover:bg-cyan-900/20 rounded-xl transition-all">
+                <i class="fas fa-database mr-3"></i> Evidence Core
+            </a>
+            <a href="/legal" class="flex items-center px-4 py-3 text-gray-400 hover:text-cyan-300 hover:bg-cyan-900/20 rounded-xl transition-all">
+                <i class="fas fa-gavel mr-3"></i> Legal Framework
+            </a>
+        </nav>
+        <div class="p-4 border-t border-cyan-900/50">
+            <a href="/logout" class="flex items-center justify-center w-full px-4 py-2 text-red-400 border border-red-500/30 hover:bg-red-500/20 rounded-lg transition-all">
+                <i class="fas fa-power-off mr-2"></i> Disconnect
+            </a>
+        </div>
+    </aside>
 
-        <a href="/">Dashboard</a>
-        <a href="/vault">Vault</a>
-        <a href="/legal">Legal Guide</a>
-    </div>
+    <main class="flex-1 flex flex-col h-full overflow-y-auto p-8 z-10">
+        <header class="mb-8">
+            <h2 class="text-4xl font-black text-white tracking-widest uppercase drop-shadow-md">Global Dashboard</h2>
+            <p class="text-cyan-400 font-mono text-sm tracking-wider mt-1 opacity-80">Real-time threat monitoring and cryptographic anchoring</p>
+        </header>
 
-    <div class="main">
-
-        <h1>Automated Tamper-Proof Evidence Vault</h1>
-        <p class="sub">Cyberbullying Detection & Legal Documentation</p>
-
-        <div class="cards">
-
-            <div class="card">
-                <h3>Total Records</h3>
-                <p>{{ total }}</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 perspective-grid">
+            
+            <div class="tilt-card glass-panel rounded-2xl p-6 relative overflow-hidden group border-t-2 border-blue-500/50">
+                <div class="card-content">
+                    <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2"><i class="fas fa-archive text-blue-400 mr-2"></i> Total Records</h3>
+                    <p class="text-5xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{{ total }}</p>
+                </div>
             </div>
 
-            <div class="card red">
-                <h3>High Severity</h3>
-                <p>{{ high }}</p>
+            <div class="tilt-card glass-panel rounded-2xl p-6 relative overflow-hidden group border-t-2 border-red-500/50">
+                <div class="absolute right-0 top-0 w-24 h-24 bg-red-500/10 rounded-full blur-2xl"></div>
+                <div class="card-content">
+                    <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2"><i class="fas fa-radiation text-red-500 mr-2 animate-pulse"></i> High Threat</h3>
+                    <p class="text-5xl font-black text-red-400 drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">{{ stats.get('High', 0) }}</p>
+                </div>
             </div>
 
-            <div class="card orange">
-                <h3>Medium Severity</h3>
-                <p>{{ medium }}</p>
+            <div class="tilt-card glass-panel rounded-2xl p-6 relative overflow-hidden group border-t-2 border-yellow-500/50">
+                <div class="absolute right-0 top-0 w-24 h-24 bg-yellow-500/10 rounded-full blur-2xl"></div>
+                <div class="card-content">
+                    <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2"><i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i> Medium</h3>
+                    <p class="text-5xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.4)]">{{ stats.get('Medium', 0) }}</p>
+                </div>
             </div>
 
-            <div class="card green">
-                <h3>Low Severity</h3>
-                <p>{{ low }}</p>
+            <div class="tilt-card glass-panel rounded-2xl p-6 relative overflow-hidden group border-t-2 border-green-500/50">
+                <div class="absolute right-0 top-0 w-24 h-24 bg-green-500/10 rounded-full blur-2xl"></div>
+                <div class="card-content">
+                    <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2"><i class="fas fa-check-circle text-green-500 mr-2"></i> Low/Safe</h3>
+                    <p class="text-5xl font-black text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">{{ stats.get('Low', 0) }}</p>
+                </div>
             </div>
-
         </div>
 
-        <div class="form-box">
+        <div class="glass-panel rounded-2xl p-8 border border-cyan-500/20 shadow-[0_0_30px_rgba(0,255,255,0.05)] relative overflow-hidden max-w-4xl">
+            <div class="flex items-center space-x-2 mb-6 border-b border-cyan-900/50 pb-4">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="ml-4 font-mono text-xs text-cyan-500 uppercase tracking-widest">> Neural_Toxicity_Scanner.exe</span>
+            </div>
 
-            <h2>Analyze New Evidence</h2>
+            <form action="/analyze" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-mono text-cyan-400 mb-2 uppercase">Input Text Payload</label>
+                    <textarea name="message" required rows="3" class="w-full bg-[#050814]/80 border border-cyan-800/50 rounded-lg p-4 text-cyan-100 font-mono text-sm placeholder-cyan-900/60 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all outline-none resize-none shadow-inner" placeholder="Paste suspicious communication here for toxicity screening..."></textarea>
+                </div>
 
-            <form action="/analyze" method="POST" enctype="multipart/form-data">
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="flex-1 w-full relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 rounded-lg blur opacity-50 group-hover:opacity-100 transition duration-500"></div>
+                        <input type="file" name="image" accept="image/*" class="relative block w-full text-sm text-cyan-400 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-xs file:font-mono file:font-bold file:bg-cyan-900/50 file:text-cyan-300 hover:file:bg-cyan-800/80 cursor-pointer border border-cyan-800/50 rounded-lg bg-[#050814]/80">
+                    </div>
 
-                <textarea name="message" placeholder="Paste abusive message..." required></textarea>
-
-                <input type="file" name="image">
-
-                <button type="submit">Analyze & Store</button>
-
+                    <button type="submit" class="w-full md:w-auto relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-mono font-bold tracking-tighter text-white bg-cyan-800 rounded-lg group">
+                        <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-cyan-500 rounded-full group-hover:w-56 group-hover:h-56"></span>
+                        <span class="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
+                        <span class="relative flex items-center"><i class="fas fa-radar mr-2"></i> INITIATE SCAN</span>
+                    </button>
+                </div>
             </form>
-
         </div>
+    </main>
 
-    </div>
+    <script>
+        const scene = new THREE.Scene();
+        // Add a slight blue fog for depth
+        scene.fog = new THREE.FogExp2(0x030712, 0.0015);
 
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg-canvas'), alpha: true, antialias: true });
+        
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.position.setZ(30);
+
+        // Create a 3D Wireframe Cyber-Globe
+        const geometry = new THREE.IcosahedronGeometry(15, 2);
+        const material = new THREE.MeshBasicMaterial({ 
+            color: 0x00ffff, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.15
+        });
+        const sphere = new THREE.Mesh(geometry, material);
+        
+        // Position it off to the right side of the screen
+        sphere.position.x = 20;
+        scene.add(sphere);
+
+        // Add some floating data particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 700;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            // Spread particles across a wide area
+            posArray[i] = (Math.random() - 0.5) * 100;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.15,
+            color: 0x3b82f6,
+            transparent: true,
+            opacity: 0.6
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particleMaterial);
+        scene.add(particlesMesh);
+
+        // Mouse interaction variables
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Constant slow rotation
+            sphere.rotation.y += 0.002;
+            sphere.rotation.x += 0.001;
+            particlesMesh.rotation.y -= 0.0005;
+
+            // Smoothly ease the 3D objects towards the mouse position
+            targetX = mouseX * 0.001;
+            targetY = mouseY * 0.001;
+            
+            sphere.rotation.y += 0.05 * (targetX - sphere.rotation.y);
+            sphere.rotation.x += 0.05 * (targetY - sphere.rotation.x);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
-
 </html>
