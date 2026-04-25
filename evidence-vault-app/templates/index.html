@@ -1,0 +1,72 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvidenceVault AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>🛡 EvidenceVault</h2>
+
+        <a href="/">Dashboard</a>
+        <a href="/vault">Vault</a>
+        <a href="/legal">Legal Guide</a>
+    </div>
+
+    <div class="main">
+
+        <h1>Automated Tamper-Proof Evidence Vault</h1>
+        <p class="sub">Cyberbullying Detection & Legal Documentation</p>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>Total Records</h3>
+                <p>{{ total }}</p>
+            </div>
+
+            <div class="card red">
+                <h3>High Severity</h3>
+                <p>{{ high }}</p>
+            </div>
+
+            <div class="card orange">
+                <h3>Medium Severity</h3>
+                <p>{{ medium }}</p>
+            </div>
+
+            <div class="card green">
+                <h3>Low Severity</h3>
+                <p>{{ low }}</p>
+            </div>
+
+        </div>
+
+        <div class="form-box">
+
+            <h2>Analyze New Evidence</h2>
+
+            <form action="/analyze" method="POST" enctype="multipart/form-data">
+
+                <textarea name="message" placeholder="Paste abusive message..." required></textarea>
+
+                <input type="file" name="image">
+
+                <button type="submit">Analyze & Store</button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

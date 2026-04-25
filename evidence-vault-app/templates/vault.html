@@ -1,0 +1,90 @@
+<!-- templates/vault.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence Vault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>🛡 EvidenceVault</h2>
+
+        <a href="/">Dashboard</a>
+        <a href="/vault">Vault</a>
+        <a href="/legal">Legal Guide</a>
+    </div>
+
+    <div class="main">
+
+        <h1>Stored Evidence Vault</h1>
+        <p class="sub">Secure tamper-proof cyberbullying records</p>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for msg in messages %}
+        <div style="background:#16a34a;padding:15px;border-radius:10px;margin-bottom:20px;">
+            {{ msg }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <table>
+
+            <tr>
+                <th>ID</th>
+                <th>Message</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Score</th>
+                <th>Date</th>
+                <th>Report</th>
+            </tr>
+
+            {% for row in records %}
+            <tr>
+
+                <td>{{ row[1] }}</td>
+
+                <td style="max-width:260px;">
+                    {{ row[2][:60] }}...
+                </td>
+
+                <td>{{ row[3] }}</td>
+
+                <td>
+                    {% if row[4] == 'High' %}
+                    <span class="high">{{ row[4] }}</span>
+                    {% elif row[4] == 'Medium' %}
+                    <span class="medium">{{ row[4] }}</span>
+                    {% else %}
+                    <span class="low">{{ row[4] }}</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ row[5] }}</td>
+
+                <td>{{ row[8] }}</td>
+
+                <td>
+                    <a href="/report/{{ row[1] }}">
+                        <button>PDF</button>
+                    </a>
+                </td>
+
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+</body>
+
+</html>
