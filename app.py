@@ -30,9 +30,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Configure Tesseract path if needed
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Adjust path
-
+pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
 # Database setup
 DATABASE = 'evidence.db'
 
