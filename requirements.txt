@@ -5,3 +5,7 @@ pytesseract==0.3.10
 reportlab==4.0.4
 Flask-Login==0.6.3
 Flask-Mail==0.9.1
+Flask==2.3.3
+detoxify==0.5.2
+gunicorn
+... (rest of your requirements)
